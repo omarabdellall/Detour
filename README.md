@@ -65,6 +65,6 @@ Our group's repository is available here:
 ## Collaboration Record
 
 - **Omar Abdellall (oaa36):** Created the first iteration of the site; scaffolded+designed each page and made improvements such as adding pictures to places/activities, map API, and overall flow to satisfy tasks.
-- **Name (NetID):** Contribution summary
+- **Bassel Dahleh (bd534):** Developed interactive map movement utility and recommendation pop-up feature for proximate attractions. Additionally, aligned planned paths with streets as opposed to geometric distance, and implemented alternative path feature.
 - **Name (NetID):** Contribution summary
 - **Name (NetID):** Contribution summary

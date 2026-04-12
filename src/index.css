@@ -189,3 +189,13 @@ textarea::placeholder {
     transform: translateY(0);
   }
 }
+
+@keyframes routeLoaderSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.route-loader-spin {
+  animation: routeLoaderSpin 0.85s linear infinite;
+}

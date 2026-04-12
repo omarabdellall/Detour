@@ -1,17 +1,44 @@
-import { Check, Clock3, DollarSign, Sparkles } from "lucide-react";
+import { Check, Clock3, DollarSign, MapPin, Plus, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { ACTIVITIES, AI_DESCRIPTIONS } from "../data/activities";
+import { AI_DESCRIPTIONS } from "../data/activities";
+import { getCityExperience } from "../data/cityData";
+import { distanceMeters } from "../utils/geo";
 import { generateAiOverview } from "../utils/gemini";
+import { rankActivitiesForQuickPick } from "../utils/vibeSimilarity";
 
 function Results({ preferences, selectedActivities, setSelectedActivities, setPage }) {
   const [aiDescription, setAiDescription] = useState(null);
   const [isLoadingAi, setIsLoadingAi] = useState(false);
 
+  const cityPack = useMemo(() => getCityExperience(preferences.city), [preferences.city]);
+  const activities = cityPack.activities;
+
   const hasSelections = selectedActivities.length > 0;
   const selectedActivityObjects = useMemo(
-    () => ACTIVITIES.filter((activity) => selectedActivities.includes(activity.id)),
-    [selectedActivities],
+    () => activities.filter((activity) => selectedActivities.includes(activity.id)),
+    [activities, selectedActivities],
   );
+
+  const ranked = useMemo(
+    () => rankActivitiesForQuickPick(activities, preferences, selectedActivities, cityPack.startLocation),
+    [activities, preferences, selectedActivities, cityPack.startLocation],
+  );
+
+  const quickAddCandidates = useMemo(() => {
+    const selected = new Set(selectedActivities);
+    return ranked.filter(({ activity }) => !selected.has(activity.id)).slice(0, 12);
+  }, [ranked, selectedActivities]);
+
+  const planAnchor = useMemo(() => {
+    if (selectedActivityObjects.length === 0) {
+      return cityPack.startLocation;
+    }
+    const lat =
+      selectedActivityObjects.reduce((s, a) => s + a.coords[0], 0) / selectedActivityObjects.length;
+    const lng =
+      selectedActivityObjects.reduce((s, a) => s + a.coords[1], 0) / selectedActivityObjects.length;
+    return [lat, lng];
+  }, [selectedActivityObjects, cityPack.startLocation]);
 
   useEffect(() => {
     let isMounted = true;
@@ -66,6 +93,13 @@ function Results({ preferences, selectedActivities, setSelectedActivities, setPa
     preferences.group || "No group selected",
   ].join(", ");
 
+  const totalEta = selectedActivityObjects.reduce((acc, a) => acc + (a.etaMinutes || 0), 0);
+
+  const quickPickSubtitle =
+    preferences.vibes.length > 0
+      ? "Ranked by your vibes, budget, and how close each stop is to the rest of your plan."
+      : "Ranked by distance from your plan cluster — add vibes on the home screen for sharper picks.";
+
   return (
     <section
       style={{
@@ -77,7 +111,7 @@ function Results({ preferences, selectedActivities, setSelectedActivities, setPa
         background: "var(--bg-app)",
       }}
     >
-      <main style={{ display: "grid", gap: "18px", alignContent: "start" }}>
+      <main style={{ display: "grid", gap: "22px", alignContent: "start" }}>
         <div
           style={{
             background: "var(--bg-surface)",
@@ -92,7 +126,7 @@ function Results({ preferences, selectedActivities, setSelectedActivities, setPa
             gap: "8px",
           }}
         >
-          <strong style={{ color: "var(--text-primary)" }}>Preferences:</strong>
+          <strong style={{ color: "var(--text-primary)" }}>Trip setup:</strong>
           <span>{preferenceLine}</span>
           <button
             type="button"
@@ -110,16 +144,163 @@ function Results({ preferences, selectedActivities, setSelectedActivities, setPa
           </button>
         </div>
 
-        <div style={{ display: "grid", gap: "4px" }}>
-          <div className="section-divider">
-            <span className="section-label">Your activities</span>
-          </div>
-          <p style={{ color: "var(--text-muted)", fontSize: "13px" }}>
-            Curated options based on your current preferences.
+        <div style={{ display: "grid", gap: "10px" }}>
+          <h2 style={{ margin: 0, fontSize: "26px", fontWeight: 800, letterSpacing: "-0.02em" }}>Build your plan</h2>
+          <p style={{ margin: 0, color: "var(--text-secondary)", fontSize: "15px", lineHeight: 1.55, maxWidth: "720px" }}>
+            Tap quick cards to stack a day, then fine-tune below. The map will only draw dotted lines to nearby spots that
+            match the same kind of energy as each stop (social, cultural, outdoors, and so on).
           </p>
         </div>
 
-        {ACTIVITIES.map((activity) => {
+        <div
+          className="soft-card"
+          style={{
+            padding: "16px 18px",
+            display: "grid",
+            gap: "12px",
+            background: "white",
+            borderRadius: "14px",
+            boxShadow: "var(--shadow-soft)",
+          }}
+        >
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "10px" }}>
+            <strong style={{ fontSize: "16px" }}>Your plan</strong>
+            <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+              {hasSelections
+                ? `${selectedActivityObjects.length} stop${selectedActivityObjects.length === 1 ? "" : "s"} · ~${totalEta} min between legs`
+                : "Empty — add from quick picks or the full list"}
+            </span>
+          </div>
+          {hasSelections ? (
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+              {selectedActivityObjects.map((a) => (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => toggleActivity(a.id)}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "8px 12px",
+                    borderRadius: "999px",
+                    border: "1px solid rgba(17, 125, 117, 0.35)",
+                    background: "rgba(17, 125, 117, 0.08)",
+                    color: "var(--text-primary)",
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  <span style={{ maxWidth: "220px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {a.title}
+                  </span>
+                  <X size={14} aria-hidden />
+                </button>
+              ))}
+            </div>
+          ) : (
+            <p style={{ margin: 0, fontSize: "14px", color: "var(--text-muted)" }}>
+              Start with one or two quick adds — we cluster suggestions around what you pick.
+            </p>
+          )}
+        </div>
+
+        <div style={{ display: "grid", gap: "10px" }}>
+          <div className="section-divider">
+            <span className="section-label">Quick add</span>
+          </div>
+          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "13px", lineHeight: 1.5 }}>{quickPickSubtitle}</p>
+          <div
+            style={{
+              display: "flex",
+              gap: "12px",
+              overflowX: "auto",
+              paddingBottom: "8px",
+              scrollSnapType: "x mandatory",
+              WebkitOverflowScrolling: "touch",
+            }}
+          >
+            {quickAddCandidates.length === 0 ? (
+              <p style={{ margin: 0, fontSize: "14px", color: "var(--text-muted)", padding: "8px 4px" }}>
+                Every curated stop is on your plan — remove one above if you want to swap in another.
+              </p>
+            ) : null}
+            {quickAddCandidates.map(({ activity }) => {
+              const distKm = (distanceMeters(planAnchor, activity.coords) / 1000).toFixed(1);
+              return (
+                <article
+                  key={activity.id}
+                  style={{
+                    flex: "0 0 min(260px, 82vw)",
+                    scrollSnapAlign: "start",
+                    borderRadius: "14px",
+                    border: "1px solid rgba(210, 221, 223, 0.95)",
+                    overflow: "hidden",
+                    display: "grid",
+                    gridTemplateColumns: "96px 1fr",
+                    background: "white",
+                    boxShadow: "0 8px 20px rgba(16, 37, 37, 0.06)",
+                  }}
+                >
+                  <img
+                    src={activity.image}
+                    alt=""
+                    style={{ width: "100%", height: "100%", minHeight: "110px", objectFit: "cover" }}
+                  />
+                  <div style={{ padding: "10px 12px", display: "grid", gap: "8px", alignContent: "start" }}>
+                    <h3 style={{ margin: 0, fontSize: "14px", fontWeight: 700, lineHeight: 1.35 }}>{activity.title}</h3>
+                    <span
+                      style={{
+                        fontSize: "11px",
+                        color: "var(--text-muted)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "4px",
+                      }}
+                    >
+                      <MapPin size={12} />
+                      ~{distKm} km from plan cluster
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => toggleActivity(activity.id)}
+                      style={{
+                        border: "none",
+                        borderRadius: "999px",
+                        height: "36px",
+                        padding: "0 12px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "6px",
+                        background: "var(--bg-primary)",
+                        color: "white",
+                        fontWeight: 700,
+                        fontSize: "13px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Plus size={16} />
+                      Add
+                    </button>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ display: "grid", gap: "4px" }}>
+          <div className="section-divider">
+            <span className="section-label">Browse every stop</span>
+          </div>
+          <p style={{ color: "var(--text-muted)", fontSize: "13px" }}>
+            Full cards with times and cost — same stops as on the map when you explore.
+          </p>
+        </div>
+
+        {activities.map((activity) => {
           const isAdded = selectedActivities.includes(activity.id);
 
           return (
