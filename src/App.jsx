@@ -10,7 +10,7 @@ const DEFAULT_PREFERENCES = {
   budget: "",
   time: "",
   group: "",
-  city: "San Francisco",
+  city: "New York City",
 };
 
 function App() {
@@ -37,7 +37,7 @@ function App() {
   if (page === "results") {
     activePage = <Results {...sharedPageProps} />;
   } else if (page === "explore") {
-    activePage = <Explore {...sharedPageProps} />;
+    activePage = <Explore key={preferences.city} {...sharedPageProps} />;
   } else if (page === "learn") {
     activePage = <Learn {...sharedPageProps} />;
   }

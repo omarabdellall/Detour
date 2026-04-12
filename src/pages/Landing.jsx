@@ -51,7 +51,7 @@ function PreferenceRow({ label, options, value, onSelect, multiSelect = false })
   );
 }
 
-function Landing({ preferences, setPreferences, setPage }) {
+function Landing({ preferences, setPreferences, setPage, setSelectedActivities }) {
   const [prompt, setPrompt] = useState("");
 
   const hasSelections =
@@ -146,12 +146,14 @@ function Landing({ preferences, setPreferences, setPage }) {
           <div>
             <select
               value={preferences.city}
-              onChange={(event) =>
+              onChange={(event) => {
+                const city = event.target.value;
                 setPreferences({
                   ...preferences,
-                  city: event.target.value,
-                })
-              }
+                  city,
+                });
+                setSelectedActivities([]);
+              }}
               style={{
                 width: "100%",
                 height: "62px",
@@ -163,8 +165,8 @@ function Landing({ preferences, setPreferences, setPage }) {
                 fontSize: "15px",
               }}
             >
-              <option value="San Francisco">San Francisco</option>
               <option value="New York City">New York City</option>
+              <option value="San Francisco">San Francisco</option>
               <option value="Boston">Boston</option>
               <option value="Chicago">Chicago</option>
             </select>

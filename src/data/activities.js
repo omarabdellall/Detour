@@ -51,6 +51,58 @@ export const ACTIVITIES = [
     image:
       "https://images.unsplash.com/photo-1527224538127-2104bb71c51b?auto=format&fit=crop&w=1200&q=80",
   },
+  {
+    id: 5,
+    title: "Clarion Alley mural walk",
+    description:
+      "Dense outdoor gallery between Mission and Valencia — quick loop, strong photo light before noon.",
+    tags: ["Cultural", "Outdoors", "Low-cost"],
+    time: "1 hour",
+    cost: "$0",
+    coords: [37.762, -122.4214],
+    etaMinutes: 8,
+    image:
+      "https://images.unsplash.com/photo-1534050359320-02900022671e?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: 6,
+    title: "Ferry Building farmers' stroll",
+    description:
+      "Weekday lunch counters and Bay views — easy hop on/off transit at the Embarcadero.",
+    tags: ["Social", "Morning", "Walkable"],
+    time: "1-2 hours",
+    cost: "$10-25",
+    coords: [37.7955, -122.3934],
+    etaMinutes: 20,
+    image:
+      "https://images.unsplash.com/photo-1506617420156-8e4536971650?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: 7,
+    title: "Lands End lookout trail",
+    description:
+      "Pacific breeze and Golden Gate glimpses without crossing the bridge — bring a wind layer.",
+    tags: ["Outdoors", "Chill", "Low-cost"],
+    time: "2 hours",
+    cost: "$0",
+    coords: [37.7799, -122.5111],
+    etaMinutes: 35,
+    image:
+      "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=1200&q=80",
+  },
+  {
+    id: 8,
+    title: "24th Street taco crawl (short)",
+    description:
+      "Three stops max — counter-service only, cash-friendly, very local rhythm.",
+    tags: ["Social", "Low-cost", "Authentic"],
+    time: "1-2 hours",
+    cost: "$12-20",
+    coords: [37.7523, -122.4182],
+    etaMinutes: 15,
+    image:
+      "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=1200&q=80",
+  },
 ];
 
 export const NEARBY_SPOTS = [
@@ -59,6 +111,7 @@ export const NEARBY_SPOTS = [
     title: "Student-run coffee roastery",
     description: "Small batch roasters who started as a student project.",
     coords: [37.7618, -122.4242],
+    tags: ["Chill", "Social", "Local favorite"],
     image:
       "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=900&q=80",
   },
@@ -67,6 +120,7 @@ export const NEARBY_SPOTS = [
     title: "Record store with listening booths",
     description: "Owner curates based on local music scene.",
     coords: [37.7514, -122.4187],
+    tags: ["Cultural", "Nightlife", "Unique"],
     image:
       "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=900&q=80",
   },
@@ -76,6 +130,7 @@ export const NEARBY_SPOTS = [
     description:
       "Local artists showcase work, students hang out here.",
     coords: [37.7693, -122.4265],
+    tags: ["Outdoors", "Cultural", "Social"],
     image:
       "https://images.unsplash.com/photo-1470165518248-ff2607f8f062?auto=format&fit=crop&w=900&q=80",
   },
