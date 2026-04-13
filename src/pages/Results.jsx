@@ -93,6 +93,29 @@ function Results({ preferences, selectedActivities, setSelectedActivities, setPa
     preferences.group || "No group selected",
   ].join(", ");
 
+  const parseCostRange = (cost) => {
+    if (!cost || typeof cost !== "string") {
+      return [0, 0];
+    }
+    const normalized = cost.replace(/\$/g, "").trim();
+    if (normalized === "0") {
+      return [0, 0];
+    }
+    if (normalized.includes("-")) {
+      const [min, max] = normalized.split("-").map((part) => Number(part.replace(/[^0-9.]/g, "")));
+      return [Number.isFinite(min) ? min : 0, Number.isFinite(max) ? max : min || 0];
+    }
+    const value = Number(normalized.replace(/[^0-9.]/g, ""));
+    return [Number.isFinite(value) ? value : 0, Number.isFinite(value) ? value : 0];
+  };
+
+  const formatCostRange = ([min, max]) => {
+    if (min === max) {
+      return `$${min}`;
+    }
+    return `$${min}-${max}`;
+  };
+
   const totalEta = selectedActivityObjects.reduce((acc, a) => acc + (a.etaMinutes || 0), 0);
 
   const quickPickSubtitle =
@@ -172,32 +195,74 @@ function Results({ preferences, selectedActivities, setSelectedActivities, setPa
             </span>
           </div>
           {hasSelections ? (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
-              {selectedActivityObjects.map((a) => (
-                <button
-                  key={a.id}
-                  type="button"
-                  onClick={() => toggleActivity(a.id)}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    padding: "8px 12px",
-                    borderRadius: "999px",
-                    border: "1px solid rgba(17, 125, 117, 0.35)",
-                    background: "rgba(17, 125, 117, 0.08)",
-                    color: "var(--text-primary)",
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    cursor: "pointer",
-                  }}
-                >
-                  <span style={{ maxWidth: "220px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {a.title}
+            <div style={{ display: "grid", gap: "12px" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                {selectedActivityObjects.map((a) => (
+                  <button
+                    key={a.id}
+                    type="button"
+                    onClick={() => toggleActivity(a.id)}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      padding: "8px 12px",
+                      borderRadius: "999px",
+                      border: "1px solid rgba(17, 125, 117, 0.35)",
+                      background: "rgba(17, 125, 117, 0.08)",
+                      color: "var(--text-primary)",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    <span style={{ maxWidth: "220px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {a.title}
+                    </span>
+                    <X size={14} aria-hidden />
+                  </button>
+                ))}
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gap: "10px",
+                  padding: "14px",
+                  borderRadius: "14px",
+                  background: "rgba(236, 252, 240, 0.9)",
+                  border: "1px solid rgba(16, 185, 129, 0.25)",
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "center" }}>
+                  <span style={{ fontWeight: 700, color: "var(--text-primary)", fontSize: "14px" }}>
+                    Cost estimate
                   </span>
-                  <X size={14} aria-hidden />
-                </button>
-              ))}
+                  <span style={{ fontWeight: 700, color: "var(--bg-primary)", fontSize: "14px" }}>
+                    {formatCostRange(
+                      selectedActivityObjects.reduce(
+                        (acc, activity) => {
+                          const [min, max] = parseCostRange(activity.cost);
+                          return [acc[0] + min, acc[1] + max];
+                        },
+                        [0, 0],
+                      ),
+                    )}
+                  </span>
+                </div>
+                <div style={{ display: "grid", gap: "6px" }}>
+                  {selectedActivityObjects.map((a) => (
+                    <div
+                      key={a.id}
+                      style={{ display: "flex", justifyContent: "space-between", gap: "12px", color: "var(--text-secondary)", fontSize: "13px" }}
+                    >
+                      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {a.title}
+                      </span>
+                      <span>{a.cost || "$0"}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           ) : (
             <p style={{ margin: 0, fontSize: "14px", color: "var(--text-muted)" }}>
