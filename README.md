@@ -69,4 +69,4 @@ The site can be viewed live at `https://detour-hci.netlify.app/`.
 - **Omar Abdellall (oaa36):** Created the first iteration of the site; scaffolded+designed each page and made improvements such as adding pictures to places/activities, map API, and overall flow to satisfy tasks.
 - **Bassel Dahleh (bd534):** Developed interactive map movement utility and recommendation pop-up feature for proximate attractions. Additionally, aligned planned paths with streets as opposed to geometric distance, and implemented alternative path feature.
 - **Name (NetID):** Contribution summary
-- **Name (NetID):** Contribution summary
+- **Charlie Patton (ccp49):** Finalized figma implementation for asynchronous implementation of features into React version; made final bug pass in finished product and implemented style formatting like centering homepage buttons and making features consistent.
