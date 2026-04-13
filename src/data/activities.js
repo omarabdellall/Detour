@@ -145,7 +145,7 @@ export const AI_DESCRIPTIONS = {
     "An immersive cultural day — pottery, street art, local markets. Each stop chosen for authenticity over popularity.",
 };
 
-export const LEARN_CONTENT = {
+export const SF_LEARN_CONTENT = {
   neighborhood: {
     name: "Mission Arts District",
     description:
