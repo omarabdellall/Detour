@@ -1,9 +1,32 @@
 import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { LEARN_CONTENT } from "../data/activities";
+import { getCityExperience } from "../data/cityData";
+import { SF_LEARN_CONTENT } from "../data/activities";
+import { NYC_LEARN_CONTENT } from "../data/nycData";
 
 const LEVELS = ["neighborhood", "city", "country"];
 
+function normalizeCity(city) {
+  if (!city) return "San Francisco";
+
+  const value = city.trim().toLowerCase();
+
+  if (value === "nyc" || value === "new york" || value === "new york city") {
+    return "New York City";
+  }
+  if (value === "sf" || value === "san francisco") {
+    return "San Francisco";
+  }
+
+  return city;
+}
+
+function getLearnContentForCity(city) {
+  const normalized = normalizeCity(city);
+
+  if (normalized === "New York City") return NYC_LEARN_CONTENT;
+  return SF_LEARN_CONTENT;
+}
 const INLINE_FACTS = {
   city: [
     {
@@ -99,16 +122,33 @@ function AccordionItem({ item, isOpen, onToggle }) {
         padding: "14px 14px",
         textAlign: "left",
         cursor: "pointer",
-        borderLeft: isOpen ? "4px solid var(--bg-primary)" : "1px solid rgba(210, 221, 223, 0.9)",
+        borderLeft: isOpen
+          ? "4px solid var(--bg-primary)"
+          : "1px solid rgba(210, 221, 223, 0.9)",
         transition: "all 180ms ease",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <strong style={{ fontSize: "15px" }}>{item.title}</strong>
-        <span style={{ fontSize: "18px", color: "var(--text-muted)" }}>{isOpen ? "−" : "+"}</span>
+        <span style={{ fontSize: "18px", color: "var(--text-muted)" }}>
+          {isOpen ? "−" : "+"}
+        </span>
       </div>
       {isOpen ? (
-        <p style={{ marginTop: "8px", color: "var(--text-secondary)", lineHeight: "24px", fontSize: "15px" }}>
+        <p
+          style={{
+            marginTop: "8px",
+            color: "var(--text-secondary)",
+            lineHeight: "24px",
+            fontSize: "15px",
+          }}
+        >
           {item.content}
         </p>
       ) : null}
@@ -116,12 +156,29 @@ function AccordionItem({ item, isOpen, onToggle }) {
   );
 }
 
-function Learn() {
+function Learn({ preferences }) {
   const [level, setLevel] = useState("neighborhood");
   const [openFacts, setOpenFacts] = useState({});
 
   const currentIndex = LEVELS.indexOf(level);
-  const currentContent = LEARN_CONTENT[level];
+const cityPack = useMemo(() => {
+  const normalizedCity = normalizeCity(preferences?.city);
+  return getCityExperience(normalizedCity);
+}, [preferences?.city]);
+
+const learnContent = useMemo(() => {
+  const packContent = cityPack?.learnContent;
+  const directContent = getLearnContentForCity(preferences?.city);
+  return packContent || directContent;
+}, [cityPack, preferences?.city]);
+
+const currentContent =
+  learnContent?.[level] ||
+  learnContent?.neighborhood || {
+    name: "San Francisco",
+    description: "Explore this place from the neighborhood, city, and country level.",
+    image: "",
+  };
   const inlineFacts = useMemo(() => INLINE_FACTS[level] || [], [level]);
   const bottomFacts = useMemo(() => BOTTOM_FACTS[level] || [], [level]);
   const canGoBroader = currentIndex < LEVELS.length - 1;
@@ -143,95 +200,124 @@ function Learn() {
       }}
     >
       <div style={{ maxWidth: "1000px", margin: "0 auto", display: "grid", gap: "22px" }}>
-      <div
-        style={{
-          minHeight: "68px",
-          background: "var(--bg-surface)",
-          borderRadius: "14px",
-          boxShadow: "var(--shadow-soft)",
-          display: "grid",
-          gridTemplateColumns: "220px 1fr 220px",
-          alignItems: "center",
-          padding: "0 12px",
-          gap: "12px",
-        }}
-      >
-        <button
-          type="button"
-          disabled={!canGoBroader}
-          onClick={() => canGoBroader && setLevel(LEVELS[currentIndex + 1])}
-          className="pill"
+        <div
           style={{
-            height: "44px",
-            opacity: canGoBroader ? 1 : 0.45,
-            display: "inline-flex",
+            minHeight: "68px",
+            background: "var(--bg-surface)",
+            borderRadius: "14px",
+            boxShadow: "var(--shadow-soft)",
+            display: "grid",
+            gridTemplateColumns: "220px 1fr 220px",
             alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
+            padding: "0 12px",
+            gap: "12px",
           }}
         >
-          <ChevronLeft size={16} />
-          MORE BROAD
-        </button>
-        <p style={{ textAlign: "center", fontSize: "25px", fontWeight: 700 }}>
-          You're in {currentContent.name}
-        </p>
-        <button
-          type="button"
-          disabled={!canGoLocal}
-          onClick={() => canGoLocal && setLevel(LEVELS[currentIndex - 1])}
-          className="pill"
+          <button
+            type="button"
+            disabled={!canGoBroader}
+            onClick={() => canGoBroader && setLevel(LEVELS[currentIndex + 1])}
+            className="pill"
+            style={{
+              height: "44px",
+              opacity: canGoBroader ? 1 : 0.45,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
+          >
+            <ChevronLeft size={16} />
+            MORE BROAD
+          </button>
+
+          <p style={{ textAlign: "center", fontSize: "25px", fontWeight: 700 }}>
+            You're in {currentContent.name}
+          </p>
+
+          <button
+            type="button"
+            disabled={!canGoLocal}
+            onClick={() => canGoLocal && setLevel(LEVELS[currentIndex - 1])}
+            className="pill"
+            style={{
+              height: "44px",
+              opacity: canGoLocal ? 1 : 0.45,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
+          >
+            MORE LOCAL
+            <ChevronRight size={16} />
+          </button>
+        </div>
+
+        {currentContent.image ? (
+          <img
+            src={currentContent.image}
+            alt={currentContent.name}
+            style={{
+              width: "100%",
+              height: "340px",
+              objectFit: "cover",
+              borderRadius: "16px",
+              boxShadow: "var(--shadow-soft)",
+            }}
+          />
+        ) : null}
+
+        <div
           style={{
-            height: "44px",
-            opacity: canGoLocal ? 1 : 0.45,
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "8px",
+            background: "var(--bg-surface)",
+            borderRadius: "14px",
+            boxShadow: "var(--shadow-soft)",
+            padding: "20px",
+            display: "grid",
+            gap: "14px",
           }}
         >
-          MORE LOCAL
-          <ChevronRight size={16} />
-        </button>
-      </div>
+          <p
+            style={{
+              color: "var(--text-secondary)",
+              lineHeight: "1.75",
+              fontSize: "18px",
+              maxWidth: "880px",
+            }}
+          >
+            {currentContent.description}
+          </p>
 
-      <img
-        src={currentContent.image}
-        alt={currentContent.name}
-        style={{
-          width: "100%",
-          height: "340px",
-          objectFit: "cover",
-          borderRadius: "16px",
-          boxShadow: "var(--shadow-soft)",
-        }}
-      />
+          {inlineFacts.map((fact) => (
+            <AccordionItem
+              key={fact.id}
+              item={fact}
+              isOpen={Boolean(openFacts[fact.id])}
+              onToggle={() => toggleFact(fact.id)}
+            />
+          ))}
+        </div>
 
-      <div style={{ background: "var(--bg-surface)", borderRadius: "14px", boxShadow: "var(--shadow-soft)", padding: "20px", display: "grid", gap: "14px" }}>
-        <p style={{ color: "var(--text-secondary)", lineHeight: "1.75", fontSize: "18px", maxWidth: "880px" }}>
-          {currentContent.description}
-        </p>
-
-        {inlineFacts.map((fact) => (
-          <AccordionItem
-            key={fact.id}
-            item={fact}
-            isOpen={Boolean(openFacts[fact.id])}
-            onToggle={() => toggleFact(fact.id)}
-          />
-        ))}
-      </div>
-
-      <div style={{ background: "var(--bg-surface)", borderRadius: "14px", boxShadow: "var(--shadow-soft)", padding: "18px", display: "grid", gap: "10px" }}>
-        {bottomFacts.map((fact) => (
-          <AccordionItem
-            key={fact.id}
-            item={fact}
-            isOpen={Boolean(openFacts[fact.id])}
-            onToggle={() => toggleFact(fact.id)}
-          />
-        ))}
-      </div>
+        <div
+          style={{
+            background: "var(--bg-surface)",
+            borderRadius: "14px",
+            boxShadow: "var(--shadow-soft)",
+            padding: "18px",
+            display: "grid",
+            gap: "10px",
+          }}
+        >
+          {bottomFacts.map((fact) => (
+            <AccordionItem
+              key={fact.id}
+              item={fact}
+              isOpen={Boolean(openFacts[fact.id])}
+              onToggle={() => toggleFact(fact.id)}
+            />
+          ))}
+        </div>
       </div>
     </section>
   );
