@@ -62,6 +62,8 @@ Our group's repository is available here:
 
 - `https://github.com/omarabdellall/Detour`
 
+The site can be viewed live at `https://detour-hci.netlify.app/`.
+
 ## Collaboration Record
 
 - **Omar Abdellall (oaa36):** Created the first iteration of the site; scaffolded+designed each page and made improvements such as adding pictures to places/activities, map API, and overall flow to satisfy tasks.
