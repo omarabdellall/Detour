@@ -39,7 +39,7 @@ function App() {
   } else if (page === "explore") {
     activePage = <Explore key={preferences.city} {...sharedPageProps} />;
   } else if (page === "learn") {
-    activePage = <Learn {...sharedPageProps} />;
+    activePage = <Learn preferences={preferences} />;
   }
 
   return (
