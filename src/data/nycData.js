@@ -1,4 +1,4 @@
-import { RAW_NEARBY_MORE } from "./nycNearbyMore.js";
+import { RAW_NEARBY_MORE } from "./nycNearbyMore";
 
 const NYC_IMG =
   "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?auto=format&fit=crop&w=1200&q=80";
@@ -224,3 +224,27 @@ export const NYC_NEARBY_SPOTS = RAW_NEARBY_ALL.map((row, index) => {
       "https://images.unsplash.com/photo-1518391846015-55a9cc003b25?auto=format&fit=crop&w=900&q=80",
   };
 });
+
+export const NYC_LEARN_CONTENT = {
+  neighborhood: {
+    name: "Midtown Manhattan",
+    description:
+      "Midtown is the dense heart of Manhattan's tourist landmarks, office towers, and transit hubs. The center of one of NYC's five boroughs, it's a high-energy area where locals often pass through without lingering, but it also contains hidden gems and classic NYC moments.",
+    image:
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/42nd_Street_in_New_York.jpg/330px-42nd_Street_in_New_York.jpg",
+  },
+  city: {
+    name: "New York City",
+    description:
+      "New York City is a bustling metropolis known for its iconic skyline, diverse neighborhoods, and vibrant cultural scene. It's a city of contrasts, where you can experience everything from world-class museums to street food vendors.",
+    image:
+      "https://i.natgeofe.com/k/5b396b5e-59e7-43a6-9448-708125549aa1/new-york-statue-of-liberty.jpg",
+  },
+  country: {
+    name: "United States",
+    description:
+      "The US is a country of regions — each city has its own distinct character. Though internationally perceived as fast-paced and commercial, locals describe SF as surprisingly neighborhood-driven and community-focused.",
+    image:
+      "https://images.unsplash.com/photo-1485738422979-f5c462d49f74?auto=format&fit=crop&w=1200&q=80",
+  },
+};
