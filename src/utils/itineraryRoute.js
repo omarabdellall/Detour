@@ -148,8 +148,8 @@ export async function fetchOsrmRoute(latLngWaypoints, mode = "foot") {
   }
   const profile = mode === "driving" ? "driving" : "foot";
   const coordStr = latLngWaypoints.map(([lat, lng]) => `${lng},${lat}`).join(";");
-  const url = `https://router.project-osrm.org/route/v1/${profile}/${coordStr}?overview=full&geometries=geojson`;
-  const res = await fetch(url);
+  const url = `https://router.project-osrm.org/route/v1/${profile}/${coordStr}?overview=simplified&geometries=geojson&continue_straight=false`;
+  const res = await fetch(url, { mode: "cors" });
   if (!res.ok) {
     throw new Error("osrm-http");
   }

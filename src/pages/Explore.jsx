@@ -126,6 +126,13 @@ function Explore({ selectedActivities = [], setPage, preferences }) {
         ? itineraryResult.positions
         : [];
 
+  const itineraryFallbackPositions = orderedStops.length >= 2 ? orderedStops.map((a) => a.coords) : [];
+  const itineraryRenderPositions = layers.route
+    ? itineraryRoutePositions.length > 1
+      ? itineraryRoutePositions
+      : itineraryFallbackPositions
+    : [];
+
   const detourSegments = useMemo(
     () => buildSimilarDetourLines(orderedStops, pack.nearbySpots, preferences),
     [orderedStops, pack.nearbySpots, preferences],
@@ -172,7 +179,8 @@ function Explore({ selectedActivities = [], setPage, preferences }) {
       : detourResult.routes;
 
   const showRouteLoadingOverlay =
-    (layers.route && itineraryLoading) || (layers.detours && detourLoading);
+    (layers.route && itineraryLoading && itineraryRoutePositions.length < 2) ||
+    (layers.detours && detourLoading);
 
   const attractionCatalog = useMemo(() => {
     const rows = [];
@@ -332,8 +340,8 @@ function Explore({ selectedActivities = [], setPage, preferences }) {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {layers.route && itineraryRoutePositions.length > 1 ? (
-            <Polyline positions={itineraryRoutePositions} color="#0f766e" weight={5} />
+          {layers.route && itineraryRenderPositions.length > 1 ? (
+            <Polyline positions={itineraryRenderPositions} color="#0f766e" weight={5} />
           ) : null}
 
           {layers.detours
